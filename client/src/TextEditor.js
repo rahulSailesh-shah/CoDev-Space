@@ -2,30 +2,24 @@ import { useCallback, useEffect, useState } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 import { io } from "socket.io-client";
-import { useParams } from "react-router-dom";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useNavigate } from "react-router-dom";
-import { v4 as uuidV4 } from "uuid";
-import Navbar from "./Navbar";
-// import Dropdown from "./Dropdown";
-// import languages from "./data";
+import { useLocation } from "react-router-dom";
 
 const SAVE_INTERVAL_MS = 2000;
-// const options = Object.keys(languages);
 
 export default function TextEditor() {
-  const { id: documentId } = useParams();
   let navigate = useNavigate();
+  const location = useLocation();
 
   const [socket, setSocket] = useState();
   const [editorQuill, setEditorQuill] = useState();
   const [compilerQuill, setCompilerQuill] = useState();
   const [compile, setCompile] = useState(false);
-  // const [progLanguage, setProgLanguage] = useState("Javascript");
 
   //Make socket.io connection
   useEffect(() => {
-    const s = io("https://codev-space-api.onrender.com");
+    const s = io("http://localhost:3001");
     setSocket(s);
 
     return () => {
@@ -37,13 +31,16 @@ export default function TextEditor() {
   useEffect(() => {
     if (socket == null || editorQuill == null) return;
 
+    const queryParams = new URLSearchParams(location.search);
+    const room = queryParams.get("room");
+    console.log(room);
     socket.once("load-document", (document) => {
       editorQuill.setContents(document);
       editorQuill.enable();
     });
 
-    socket.emit("get-document", documentId);
-  }, [socket, editorQuill, documentId]);
+    socket.emit("get-document", room);
+  }, [socket, editorQuill, location]);
 
   //Save document to MongoDB
   useEffect(() => {
@@ -141,39 +138,28 @@ export default function TextEditor() {
   }, []);
 
   return (
-    <>
-      <Navbar />
-      <div className="container">
-        <p
-          className="button new-file"
-          onClick={() => navigate(`/documents/${uuidV4()}`)}
-        >
-          New Space
-        </p>
-        {/* <Dropdown
-        options={options}
-        progLanguage={progLanguage}
-        setProgLanguage={setProgLanguage}
-      /> */}
+    <div className="container">
+      <p className="button new-file" onClick={() => navigate("/")}>
+        New Room
+      </p>
 
-        <div className="code-container">
-          <div className="editor-container" ref={wrapperRef}></div>
-          <div className="compiler-container" ref={wrapperRef}></div>
-        </div>
-
-        <div className="button-container">
-          <CopyToClipboard
-            text={window.location.href}
-            onCopy={() => alert("Link copird to clipboard")}
-          >
-            <p className="button">Copy Link</p>
-          </CopyToClipboard>
-
-          <p className="button" onClick={() => setCompile(true)}>
-            Run
-          </p>
-        </div>
+      <div className="code-container">
+        <div className="editor-container" ref={wrapperRef}></div>
+        <div className="compiler-container" ref={wrapperRef}></div>
       </div>
-    </>
+
+      <div className="button-container">
+        <CopyToClipboard
+          text={window.location.href}
+          onCopy={() => alert("Link copird to clipboard")}
+        >
+          <p className="button">Copy Room Link</p>
+        </CopyToClipboard>
+
+        <p className="button" onClick={() => setCompile(true)}>
+          Run
+        </p>
+      </div>
+    </div>
   );
 }

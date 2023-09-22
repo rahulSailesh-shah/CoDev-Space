@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const axios = require("axios");
 const dotenv = require("dotenv");
-const Document = require("./Document");
+const CodeSpace = require("./CodeSpace");
 
 dotenv.config();
 
@@ -11,7 +11,7 @@ const defaultValue = "";
 
 const io = require("socket.io")(3001, {
   cors: {
-    origin: "https://codev-space.onrender.com",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST"],
   },
 });
@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("save-document", async (data) => {
-      await Document.findByIdAndUpdate(documentId, { data });
+      await CodeSpace.findByIdAndUpdate(documentId, { data });
     });
 
     socket.on("send-code", async (code) => {
@@ -40,10 +40,10 @@ io.on("connection", (socket) => {
 async function findOrCreateDocument(id) {
   if (id == null) return;
 
-  const document = await Document.findById(id);
+  const document = await CodeSpace.findById(id);
   if (document) return document;
 
-  return await Document.create({ _id: id, data: defaultValue });
+  return await CodeSpace.create({ _id: id, data: defaultValue });
 }
 
 async function compileCode(code) {
