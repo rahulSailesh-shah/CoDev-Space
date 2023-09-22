@@ -150,10 +150,10 @@ export default function TextEditor() {
 
       <div className="button-container">
         <CopyToClipboard
-          text={window.location.href}
+          text={new URLSearchParams(location.search).get("room")}
           onCopy={() => alert("Link copird to clipboard")}
         >
-          <p className="button">Copy Room Link</p>
+          <p className="button">Copy Room ID</p>
         </CopyToClipboard>
 
         <p className="button" onClick={() => setCompile(true)}>
