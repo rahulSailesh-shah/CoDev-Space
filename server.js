@@ -18,6 +18,7 @@ const io = require("socket.io")(3001, {
 
 io.on("connection", (socket) => {
   socket.on("get-document", async (documentId) => {
+    console.log("Room: ", documentId);
     const document = await findOrCreateDocument(documentId);
     socket.join(documentId);
     socket.emit("load-document", document.data);
