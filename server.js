@@ -11,7 +11,7 @@ const defaultValue = "";
 
 const io = require("socket.io")(3001, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://codev-space.onrender.com",
     methods: ["GET", "POST"],
   },
 });
